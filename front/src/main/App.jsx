@@ -1,11 +1,13 @@
 import React from 'react';
 import { HashRouter } from 'react-router-dom';
-import Home from './Home';
+import Header from '../templates/Header';
 import Footer from '../templates/Footer';
+import Routes from './Routes';
 
 export default props => (
   <HashRouter>
-      <Home/>
+      <Header/>
+      <Routes />
       <Footer />
   </HashRouter>
 )
