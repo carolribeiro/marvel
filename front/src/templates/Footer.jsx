@@ -2,10 +2,11 @@ import React from 'react'
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import { makeStyles } from '@material-ui/core/styles';
+import logo from '../assets/images/marvel_logo_footer.png' ;
 
 function Copyright() {
     return (
-      <Typography variant="body2" color="textSecondary" align="center">
+      <Typography variant="body2" color="textPrimary" align="center">
         {'Copyright © '}
         <Link color="inherit" href="https://material-ui.com/">
           Your Website
@@ -19,7 +20,7 @@ function Copyright() {
   const useStyles = makeStyles(theme => ({
     
     footer: {
-      backgroundColor: theme.palette.background.paper,
+      backgroundColor: '#202020',
       padding: theme.spacing(6),
     },
     
@@ -30,12 +31,7 @@ export default function Footer() {
     const classes = useStyles();
     return (
     <footer className={classes.footer}>
-        <Typography variant="h6" align="center" gutterBottom>
-            Footer
-        </Typography>
-        <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-            Something here to give the footer a purpose!
-        </Typography>
+        <img src={logo} alt="logo" href="/home"/>
         <Copyright />
     </footer>
     )

@@ -56,6 +56,7 @@ const useStyles = makeStyles(theme => ({
   },
   toolbarPrimary:{
     justifyContent:'center',
+    paddingTop:'0px',
   },
   toolbarHidden:{
     visibility: 'hidden',
@@ -76,15 +77,13 @@ export default function Menu() {
       <CssBaseline />
       <AppBar className={classes.appBar}>
         <Toolbar className={classes.toolbarPrimary}>
-            <List className={classes.toolbarHidden}>
-                <ListItemLink to="/" primary="Marvel" />
-            </List>
             <img src={logo} alt="logo" href="/home"/>
         </Toolbar>
         <Toolbar component="nav" variant="dense" className={classes.toolbarSecondary}>
             <List className={classes.toolbarSecondary}>
                 <ListItemLink to="/characters" primary="Characters" />
                 <ListItemLink to="/comics" primary="Comics" />  
+                <ListItemLink to="/comics" primary="Movies" />  
             </List>
         </Toolbar>
       </AppBar>

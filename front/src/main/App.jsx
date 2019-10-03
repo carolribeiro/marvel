@@ -6,9 +6,9 @@ import Routes from './Routes';
 
 export default props => (
   <HashRouter>
-      <Header/>
-      <Routes />
-      <Footer />
+    <Header/>
+    <Routes />
+    <Footer />
   </HashRouter>
 )
 
