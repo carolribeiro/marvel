@@ -4,8 +4,7 @@ import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
 import { makeStyles } from '@material-ui/core/styles';
-import { Link as RouterLink } from 'react-router-dom';
-import Link from '@material-ui/core/Link';
+import { Link } from 'react-router-dom';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -19,7 +18,7 @@ function ListItemLink(props) {
           React.forwardRef((itemProps, ref) => (
             // With react-router-dom@^6.0.0 use `ref` instead of `innerRef`
             // See https://github.com/ReactTraining/react-router/issues/6056
-            <RouterLink to={to} {...itemProps} innerRef={ref} />
+            <Link to={to} {...itemProps} innerRef={ref} />
           )),
         [to],
       );
@@ -76,8 +75,8 @@ export default function Menu() {
     <React.Fragment>
       <CssBaseline />
       <AppBar className={classes.appBar}>
-        <Toolbar className={classes.toolbarPrimary}>
-            <img src={logo} alt="logo" href="/home"/>
+        <Toolbar className={classes.toolbarPrimary}>           
+            <Link to="/home"><img src={logo} alt="logo"/></Link>
         </Toolbar>
         <Toolbar component="nav" variant="dense" className={classes.toolbarSecondary}>
             <List className={classes.toolbarSecondary}>
