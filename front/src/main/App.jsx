@@ -1,7 +1,7 @@
 import React from 'react';
 import { HashRouter } from 'react-router-dom';
-import Header from '../templates/Header';
-import Footer from '../templates/Footer';
+import Header from '../components/header';
+import Footer from '../components/footer';
 import Routes from './Routes';
 
 export default props => (
