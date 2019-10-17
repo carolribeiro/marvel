@@ -21,7 +21,7 @@ function ListItemLink(props) {
             <Link to={to} {...itemProps} innerRef={ref} />
           )),
         [to],
-      );
+    );
 
     return (
       <li>
@@ -30,7 +30,7 @@ function ListItemLink(props) {
         </ListItem>
       </li>
     );
-  }
+}
 
 ListItemLink.propTypes = {
     primary: PropTypes.string.isRequired,

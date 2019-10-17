@@ -4,6 +4,8 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import Paper from '@material-ui/core/Paper';
+import banner from '../assets/images/fundo.jpeg';
 
 const useStyles = makeStyles(theme => ({
   
@@ -21,19 +23,34 @@ const useStyles = makeStyles(theme => ({
   heroButtons: {
     marginTop: theme.spacing(4),
   },
+  banner:{
+    backgroundPosition: 'center',
+    backgroundSize: 'cover',
+    display: 'block',
+    margin: '0 auto',
+    maxWidth: '1600px',
+    overflow: 'hidden',
+    top: '0',
+    width: 'auto',
+    zIndex: '0',
+    height: '562px',
+  },
 }));
-
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export default function Home (){
   const classes = useStyles();
     return (
       <React.Fragment>
         <main>
+          <Paper>
+            <div className={classes.banner}>
+              <img src={banner} alt="banner"/>
+            </div>  
+          </Paper>
           <div className={classes.heroContent}>
-            <Container maxWidth="sm">
+            <Container maxWidth="md">            
               <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
-                Album layout
+                Last comics
               </Typography>
               <Typography variant="h5" align="center" color="textSecondary" paragraph>
                 Something short and leading about the collection below—its contents, the creator, etc.
