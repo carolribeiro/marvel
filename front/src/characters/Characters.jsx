@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -7,6 +7,11 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import InputBase from '@material-ui/core/InputBase';
+import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
+import SearchIcon from '@material-ui/icons/Search';
 import { makeStyles } from '@material-ui/core/styles';
 import md5 from 'js-md5';
 
@@ -23,8 +28,8 @@ const useStyles = makeStyles(theme => ({
     color: '#fff',
   },
   cardGrid: {
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(8),
+    paddingTop: theme.spacing(5), // 8 * 5 = 40px
+    paddingBottom: theme.spacing(8), //default 8 = 64px
   },
   card: {
     height: '100%',
@@ -37,61 +42,98 @@ const useStyles = makeStyles(theme => ({
   cardContent: {
     flexGrow: 1,
   },
+  root: {
+    padding: '2px 4px',
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '40px',
+  },
+  input: {
+    marginLeft: theme.spacing(1),
+    flex: 1,
+  },
+  iconButton: {
+    padding: 10,
+  },
+  divider: {
+    height: 28,
+    margin: 4,
+  },
 }));
 
-export default class Comics extends Component {
+export default function Characters() {
 
-  state = {
-    data: []
-  }
+  const classes = useStyles();
 
-  async componentDidMount() {
-    const timestamp = Number(new Date());
-    const hash = md5.create();
-    hash.update(timestamp + PRIVATE_KEY + PUBLIC_KEY);
+  const [chars, setChars] = useState([]);
 
-    const response = await fetch(
-      `https://gateway.marvel.com/v1/public/characters?ts=${timestamp}&orderBy=name&limit=10&apikey=${PUBLIC_KEY}&hash=${hash.hex()}`
-    )
-    const responseJson = await response.json()
-    this.setState({ data: responseJson.data.results })
-    console.log(responseJson.data.results);
-  }
+  // async function fetchData() {
+  //   const timestamp = Number(new Date());
+  //   const hash = md5.create();
+  //   hash.update(timestamp + PRIVATE_KEY + PUBLIC_KEY);
+  //   const response = await fetch(
+  //     `https://gateway.marvel.com/v1/public/characters?ts=${timestamp}&orderBy=name&limit=10&apikey=${PUBLIC_KEY}&hash=${hash.hex()}`
+  //   )
+  //   const json = await response.json()
+  //   setChars({chars:json.data.results})
+  //   console.log({chars:json.data.results});
+  // }
 
-  render() {
-    return (
-      <Container  maxWidth="md">
-        <Grid container spacing={4}>
-          {this.state.data.map(chars => (
-            <Grid item key={chars.name} xs={12} sm={6} md={4}>
-              <Card >
-                <CardMedia   
-                  image={`${chars.thumbnail.path}.${chars.thumbnail.extension}`}
-                  title={chars.name}
-                />
-                <CardContent >
-                  <Typography gutterBottom variant="h5" component="h2">
-                    {chars.name}
-                  </Typography>
-                  <Typography>
-                    {chars.description}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button size="small" color="primary">
-                    View
-                      </Button>
-                  <Button size="small" color="primary">
-                    Edit
-                      </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-    );
-  }
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
+ 
+  useEffect(() => {
+    const fetchData = async() => { 
+      const timestamp = Number(new Date());
+      const hash = md5.create();
+      hash.update(timestamp + PRIVATE_KEY + PUBLIC_KEY);
+      await fetch(
+        `https://gateway.marvel.com/v1/public/characters?ts=${timestamp}&orderBy=name&limit=9&apikey=${PUBLIC_KEY}&hash=${hash.hex()}`
+      ).then((response)=>{
+        return response.json();
+      }).then((response)=>{
+        setChars(response.data.results);
+        console.log(response.data.results);   
+      })
+      
+    };
+    fetchData(); 
+  },[]);
+  
+  return (
+    <Container className={classes.cardGrid} maxWidth="md">
+      <Paper className={classes.root}>
+        <InputBase
+          className={classes.input}
+          placeholder="Search character"
+          inputProps={{ 'aria-label': 'search character' }}
+        />
+        <Divider className={classes.divider} orientation="vertical" />
+        <IconButton className={classes.iconButton} aria-label="search">
+          <SearchIcon />
+        </IconButton>
+      </Paper>
+      <Grid container spacing={4}>
+        {chars && chars.length > 0 && chars.map(char => (
+          <Grid item key={char.id} xs={12} sm={6} md={4}>
+            <Card className={classes.card}>
+              <CardMedia   
+                className={classes.cardMedia}
+                image={`${char.thumbnail.path}.${char.thumbnail.extension}`}
+                title={char.name}
+              />
+              <CardContent className={classes.cardContent}>
+                <Typography gutterBottom variant="h6" component="h2">
+                  {char.name}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Container>   
+  );
 }
 //https://www.robinwieruch.de/react-hooks-fetch-data
 //https://medium.com/@ecavalcanti/react-native-consumindo-a-api-da-marvel-c444e0bc1c8a
