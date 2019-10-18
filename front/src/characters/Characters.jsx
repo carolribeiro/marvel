@@ -11,6 +11,9 @@ import InputBase from '@material-ui/core/InputBase';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
+import Box from '@material-ui/core/Box';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
 import md5 from 'js-md5';
 
@@ -45,7 +48,7 @@ const useStyles = makeStyles(theme => ({
     padding: '2px 4px',
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '40px',
+    marginBottom: '20px',
   },
   input: {
     marginLeft: theme.spacing(1),
@@ -58,6 +61,7 @@ const useStyles = makeStyles(theme => ({
     height: 28,
     margin: 4,
   },
+  
 }));
 
 export default function Characters() {
@@ -65,6 +69,8 @@ export default function Characters() {
   const classes = useStyles();
 
   const [chars, setChars] = useState([]);
+
+  const [values, setValues] = useState({sort: '',});
 
   // async function fetchData() {
   //   const timestamp = Number(new Date());
@@ -98,6 +104,13 @@ export default function Characters() {
     };
     fetchData(); 
   },[]);
+
+  const handleChange = event => {
+    setValues(oldValues => ({
+      ...oldValues,
+      [event.target.name]: event.target.value,
+    }));
+  };
   
   return (
 
@@ -113,7 +126,27 @@ export default function Characters() {
           <SearchIcon />
         </IconButton>
       </Paper>
-
+      <div style={{ float: 'left'}}>
+      <Box> 
+        {chars.total} results
+      </Box>  
+      </div>
+      <div style={{ float: 'right'}}>
+      <Box >
+        {chars.total} Sort by
+        <Select
+          value={values.sort}
+          onChange={handleChange}
+          displayEmpty
+          name="sort"
+         
+        >
+          <MenuItem value='A-Z'>A-Z</MenuItem>
+          <MenuItem value='Z-A'>Z-A</MenuItem>
+      
+        </Select>
+      </Box>
+      </div>
       <Grid container spacing={4}>
         {chars && chars.length > 0 && chars.map(char => (
           <Grid item key={char.id} xs={12} sm={6} md={4}>
