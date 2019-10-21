@@ -61,7 +61,9 @@ const useStyles = makeStyles(theme => ({
     height: 28,
     margin: 4,
   },
-  
+  select:{
+    fontSize: '0.9rem',
+  }
 }));
 
 export default function Characters() {
@@ -70,8 +72,9 @@ export default function Characters() {
 
   const [chars, setChars] = useState([]);
 
-  const [values, setValues] = useState({sort: '',});
+  const [values, setValues] = useState({sort: 'A-Z',});
 
+  const [total, setTotal] = useState([]);
   // async function fetchData() {
   //   const timestamp = Number(new Date());
   //   const hash = md5.create();
@@ -99,7 +102,9 @@ export default function Characters() {
         return response.json();
       }).then((response)=>{
         setChars(response.data.results);
+        setTotal(response.data);
         console.log(response.data.results);   
+        console.log(response.data);   
       })   
     };
     fetchData(); 
@@ -126,20 +131,18 @@ export default function Characters() {
           <SearchIcon />
         </IconButton>
       </Paper>
-      <div style={{ float: 'left'}}>
+      <div style={{ float: 'left', marginTop: '5px'}}>
       <Box> 
-        {chars.total} results
+        {total.total} results
       </Box>  
       </div>
       <div style={{ float: 'right'}}>
       <Box >
-        {chars.total} Sort by
-        <Select
+        Sort by <Select className={classes.select}
           value={values.sort}
           onChange={handleChange}
           displayEmpty
-          name="sort"
-         
+          name="sort"   
         >
           <MenuItem value='A-Z'>A-Z</MenuItem>
           <MenuItem value='Z-A'>Z-A</MenuItem>
