@@ -17,8 +17,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
 import md5 from 'js-md5';
 
-const PUBLIC_KEY = '8346d461fa71a8927973e38199c9d2e4'
-const PRIVATE_KEY = '9ca18c5f710af9adb2e9c3d12423824198ada02e'
+const publicKey = `${process.env.REACT_APP_PUBLIC_API_KEY}`;
+const privateKey = `${process.env.REACT_APP_PRIVATE_API_KEY}`;
 
 const useStyles = makeStyles(theme => ({
 
@@ -95,16 +95,14 @@ export default function Characters() {
     const fetchData = async() => { 
       const timestamp = Number(new Date());
       const hash = md5.create();
-      hash.update(timestamp + PRIVATE_KEY + PUBLIC_KEY);
+      hash.update(timestamp + privateKey + publicKey);
       await fetch(
-        `https://gateway.marvel.com/v1/public/characters?ts=${timestamp}&orderBy=name&limit=9&apikey=${PUBLIC_KEY}&hash=${hash.hex()}`
+        `https://gateway.marvel.com/v1/public/characters?ts=${timestamp}&orderBy=name&limit=9&apikey=${publicKey}&hash=${hash.hex()}`
       ).then((response)=>{
         return response.json();
       }).then((response)=>{
         setChars(response.data.results);
         setTotal(response.data);
-        console.log(response.data.results);   
-        console.log(response.data);   
       })   
     };
     fetchData(); 
