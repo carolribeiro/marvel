@@ -14,6 +14,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import Box from '@material-ui/core/Box';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import Loading from '../components/loading';
 import { makeStyles } from '@material-ui/core/styles';
 import md5 from 'js-md5';
 
@@ -48,7 +50,7 @@ const useStyles = makeStyles(theme => ({
     padding: '2px 4px',
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '20px',
+    marginBottom: '40px',
   },
   input: {
     marginLeft: theme.spacing(1),
@@ -63,18 +65,20 @@ const useStyles = makeStyles(theme => ({
   },
   select:{
     fontSize: '0.9rem',
-  }
+  },
 }));
 
 export default function Characters() {
 
   const classes = useStyles();
 
-  const [chars, setChars] = useState([]);
-
+  const [characters, setCharacters] = useState([]);
+  const [total, setTotal] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+  const perPageLimit = 20;
+  const [hasMore, setHasMore] = useState(true)
   const [values, setValues] = useState({sort: 'A-Z',});
 
-  const [total, setTotal] = useState([]);
   // async function fetchData() {
   //   const timestamp = Number(new Date());
   //   const hash = md5.create();
@@ -90,23 +94,50 @@ export default function Characters() {
   // useEffect(() => {
   //   fetchData();
   // }, []);
+
+  async function getCharacterList(offset = 0) {
+    const timestamp = Number(new Date());
+    const hash = md5.create();
+    hash.update(timestamp + privateKey + publicKey);
+    const offsetResults = (offset === 0) ? 0 : offset + 1
+    await fetch(`https://gateway.marvel.com/v1/public/characters?ts=${timestamp}&offset=${offsetResults}&limit=${perPageLimit}&apikey=${publicKey}&hash=${hash.hex()}`)
+      .then(result => result.json())
+      .then(response => {
+        const charactersData = [...characters.concat(response.data.results)]
+        setCharacters(charactersData)
+        setTotal(response.data.total)
+        if (isLoading)
+          setLoading(false)
+        if (hasMore && characters.length >= response.data.total - 1)
+          setHasMore(false)
+      })
+  }
+
+  useEffect(() => {    
+    getCharacterList()
+  }, [])
+
+  function _onCharacterClick(id) {
+    console.log('Click on', id)
+  }
  
-  useEffect(() => {
-    const fetchData = async() => { 
-      const timestamp = Number(new Date());
-      const hash = md5.create();
-      hash.update(timestamp + privateKey + publicKey);
-      await fetch(
-        `https://gateway.marvel.com/v1/public/characters?ts=${timestamp}&orderBy=name&limit=9&apikey=${publicKey}&hash=${hash.hex()}`
-      ).then((response)=>{
-        return response.json();
-      }).then((response)=>{
-        setChars(response.data.results);
-        setTotal(response.data);
-      })   
-    };
-    fetchData(); 
-  },[]);
+  // useEffect(() => {
+  //   const fetchData = async() => { 
+  //     const timestamp = Number(new Date());
+  //     const hash = md5.create();
+  //     hash.update(timestamp + privateKey + publicKey);
+  //     await fetch(
+  //       `https://gateway.marvel.com/v1/public/characters?ts=${timestamp}&orderBy=name&limit=9&apikey=${publicKey}&hash=${hash.hex()}`
+  //     ).then((response)=>{
+  //       return response.json();
+  //     }).then((response)=>{
+  //       setChars(response.data.results);
+  //       setTotal(response.data.total);
+      
+  //     })   
+  //   };
+  //   fetchData(); 
+  // },[]);
 
   const handleChange = event => {
     setValues(oldValues => ({
@@ -116,7 +147,6 @@ export default function Characters() {
   };
   
   return (
-
     <Container className={classes.cardGrid} maxWidth="md">
       <Paper className={classes.root}>
         <InputBase
@@ -129,48 +159,59 @@ export default function Characters() {
           <SearchIcon />
         </IconButton>
       </Paper>
-      <div style={{ float: 'left', marginTop: '5px'}}>
-      <Box> 
-        {total.total} results
-      </Box>  
-      </div>
-      <div style={{ float: 'right'}}>
-      <Box >
-        Sort by <Select className={classes.select}
-          value={values.sort}
-          onChange={handleChange}
-          displayEmpty
-          name="sort"   
-        >
-          <MenuItem value='A-Z'>A-Z</MenuItem>
-          <MenuItem value='Z-A'>Z-A</MenuItem>
       
-        </Select>
-      </Box>
-      </div>
-      <Grid container spacing={4}>
-        {chars && chars.length > 0 && chars.map(char => (
-          <Grid item key={char.id} xs={12} sm={6} md={4}>
-            <Card className={classes.card}>
-              <CardActionArea>
-                <CardMedia   
-                  className={classes.cardMedia}
-                  image={`${char.thumbnail.path}.${char.thumbnail.extension}`}
-                  title={char.name}
-                />
-                <CardContent className={classes.cardContent}>
-                  <Typography gutterBottom variant="h6" component="h2">
-                    {char.name}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
+      {/*<div style={{ float: 'left', marginTop: '5px'}}>
+        <Box> 
+          {total} results
+        </Box>  
+        </div>
+        <div style={{ float: 'right'}}>
+        <Box >
+          Sort by <Select className={classes.select}
+            value={values.sort}
+            onChange={handleChange}
+            displayEmpty
+            name="sort"   
+          >
+            <MenuItem value='A-Z'>A-Z</MenuItem>
+            <MenuItem value='Z-A'>Z-A</MenuItem>
+        
+          </Select>
+        </Box>
+      </div> */}
+      { (isLoading) ? <Loading/> :
+        <InfiniteScroll style={{ overflow: 'hidden'}}
+          dataLength={characters.length}
+          next={() => {getCharacterList(characters.length)}}
+          hasMore={hasMore}
+        >
+          <Grid container spacing={4}>
+          {characters && characters.length > 0 && characters.map(char => (
+            <Grid item key={char.id} xs={12} sm={6} md={4}>
+              <Card className={classes.card}>
+                <CardActionArea>
+                  <CardMedia   
+                    className={classes.cardMedia}
+                    image={`${char.thumbnail.path}.${char.thumbnail.extension}`}
+                    title={char.name}
+                  />
+                  <CardContent className={classes.cardContent}>
+                    <Typography gutterBottom variant="h6" component="h2">
+                      {char.name}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
           </Grid>
-        ))}
-      </Grid>
+        </InfiniteScroll>
+      }
+      
     </Container>   
   );
 }
+//https://github.com/MatheusHAS/reactjs-marvel-api
 //https://www.robinwieruch.de/react-hooks-fetch-data
 //https://medium.com/@ecavalcanti/react-native-consumindo-a-api-da-marvel-c444e0bc1c8a
 //https://github.com/cod3rcursos/curso-react-redux/blob/master/todo-app/frontend-sem-redux/src/todo/todo.jsx

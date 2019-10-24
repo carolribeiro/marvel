@@ -82,7 +82,7 @@ export default function Menu() {
             <List className={classes.toolbarSecondary}>
                 <ListItemLink to="/characters" primary="Characters" />
                 <ListItemLink to="/comics" primary="Comics" />  
-                <ListItemLink to="/comics" primary="Movies" />  
+                <ListItemLink to="/movies" primary="Movies" />  
             </List>
         </Toolbar>
       </AppBar>

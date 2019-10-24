@@ -11,6 +11,9 @@ import InputBase from '@material-ui/core/InputBase';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
+import Box from '@material-ui/core/Box';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
 import md5 from 'js-md5';
 
@@ -45,7 +48,7 @@ const useStyles = makeStyles(theme => ({
     padding: '2px 4px',
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '40px',
+    marginBottom: '20px',
   },
   input: {
     marginLeft: theme.spacing(1),
@@ -58,6 +61,9 @@ const useStyles = makeStyles(theme => ({
     height: 28,
     margin: 4,
   },
+  select:{
+    fontSize: '0.9rem',
+  },
 }));
 
 export default function Comics() {
@@ -65,6 +71,8 @@ export default function Comics() {
   const classes = useStyles();
 
   const [comics, setComics] = useState([]);
+  const [total, setTotal] = useState([]);
+  const [values, setValues] = useState({sort: 'A-Z',});
 
   // async function fetchData() {
   //   const timestamp = Number(new Date());
@@ -93,11 +101,19 @@ export default function Comics() {
         return response.json();
       }).then((response)=>{
         setComics(response.data.results);
-        console.log(response.data.results);   
+        console.log(response.data);
+        setTotal(response.data);
       }) 
     };
     fetchData(); 
   },[]);
+
+  const handleChange = event => {
+    setValues(oldValues => ({
+      ...oldValues,
+      [event.target.name]: event.target.value,
+    }));
+  };
   
   return (
     <Container className={classes.cardGrid} maxWidth="md">
@@ -112,6 +128,25 @@ export default function Comics() {
           <SearchIcon />
         </IconButton>
       </Paper>
+      <div style={{ float: 'left', marginTop: '5px'}}>
+        <Box> 
+          {total.total} results
+        </Box>  
+        </div>
+        <div style={{ float: 'right'}}>
+        <Box >
+          Sort by <Select className={classes.select}
+            value={values.sort}
+            onChange={handleChange}
+            displayEmpty
+            name="sort"   
+          >
+            <MenuItem value='A-Z'>A-Z</MenuItem>
+            <MenuItem value='Z-A'>Z-A</MenuItem>
+        
+          </Select>
+        </Box>
+      </div>
       <Grid container spacing={4}>
         {comics && comics.length > 0 && comics.map(comic => (
           <Grid item key={comic.id} xs={12} sm={6} md={4}>

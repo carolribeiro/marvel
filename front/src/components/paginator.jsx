@@ -22,15 +22,23 @@ class Paginator extends Component {
     pages: [],
   };
 
+  //const [pages, setPages] = useState([]);
   componentWillMount() {
     this.setPages(this.props.page, this.props.maxPage);
   }
+
+  //useEffect(()=>{
+  //  setPages()
+  //},[])
 
   componentWillReceiveProps(nextProps) {
     if (this.state.pages.indexOf(nextProps.page) === -1) {
       this.setPages(nextProps.page, nextProps.maxPage);
     }
   }
+  //useEffect(()=>{
+  //  
+  //},[])
 
   setPages = (page, maxPage) => {
     const pages = [];
