@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
+import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Container from '@material-ui/core/Container';
@@ -9,16 +10,19 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
 import Divider from '@material-ui/core/Divider';
+import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 import Box from '@material-ui/core/Box';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import Loading from '../components/loading';
 import { makeStyles } from '@material-ui/core/styles';
 import md5 from 'js-md5';
 
-const PUBLIC_KEY = '8346d461fa71a8927973e38199c9d2e4'
-const PRIVATE_KEY = '9ca18c5f710af9adb2e9c3d12423824198ada02e'
+const publicKey = `${process.env.REACT_APP_PUBLIC_API_KEY}`;
+const privateKey = `${process.env.REACT_APP_PRIVATE_API_KEY}`;
 
 const useStyles = makeStyles(theme => ({
 
@@ -44,11 +48,14 @@ const useStyles = makeStyles(theme => ({
   cardContent: {
     flexGrow: 1,
   },
+  cardActions: {
+    justifyContent: 'center',
+  },
   root: {
     padding: '2px 4px',
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '20px',
+    marginBottom: '40px',
   },
   input: {
     marginLeft: theme.spacing(1),
@@ -72,7 +79,10 @@ export default function Comics() {
 
   const [comics, setComics] = useState([]);
   const [total, setTotal] = useState([]);
-  const [values, setValues] = useState({sort: 'A-Z',});
+  const [isLoading, setLoading] = useState(true)
+  const [hasMore, setHasMore] = useState(true)
+  const perPageLimit = 20
+  //const [values, setValues] = useState({sort: 'A-Z',});
 
   // async function fetchData() {
   //   const timestamp = Number(new Date());
@@ -90,30 +100,56 @@ export default function Comics() {
   //   fetchData();
   // }, []);
  
-  useEffect(() => {
-    const fetchData = async() => { 
-      const timestamp = Number(new Date());
-      const hash = md5.create();
-      hash.update(timestamp + PRIVATE_KEY + PUBLIC_KEY);
-      await fetch(
-        `https://gateway.marvel.com/v1/public/comics?ts=${timestamp}&orderBy=title&limit=9&apikey=${PUBLIC_KEY}&hash=${hash.hex()}`
-      ).then((response)=>{
-        return response.json();
-      }).then((response)=>{
-        setComics(response.data.results);
-        console.log(response.data);
-        setTotal(response.data);
-      }) 
-    };
-    fetchData(); 
-  },[]);
+  // useEffect(() => {
+  //   const fetchData = async() => { 
+  //     const timestamp = Number(new Date());
+  //     const hash = md5.create();
+  //     hash.update(timestamp + PRIVATE_KEY + PUBLIC_KEY);
+  //     await fetch(
+  //       `https://gateway.marvel.com/v1/public/comics?ts=${timestamp}&orderBy=title&limit=9&apikey=${PUBLIC_KEY}&hash=${hash.hex()}`
+  //     ).then((response)=>{
+  //       return response.json();
+  //     }).then((response)=>{
+  //       setComics(response.data.results);
+  //       console.log(response.data);
+  //       setTotal(response.data);
+  //     }) 
+  //   };
+  //   fetchData(); 
+  // },[]);
+  
+  async function getComicsList(offset = 0) {
+    const timestamp = Number(new Date());
+    const hash = md5.create();
+    hash.update(timestamp + privateKey + publicKey);
+    const offsetResults = (offset === 0) ? 0 : offset+1
+    await fetch(`https://gateway.marvel.com/v1/public/comics?ts=${timestamp}&orderBy=title&offset=${offsetResults}&limit=${perPageLimit}&apikey=${publicKey}&hash=${hash.hex()}`) 
+      .then(result => result.json())
+      .then(response => {
+        let comicsData = [...comics.concat(response.data.results)]
+        setComics(comicsData)
+        console.log(comicsData)
+        if (isLoading)
+          setLoading(false)
+        if (hasMore && comics.length >= response.data.total - 1)
+          setHasMore(false)
+      })
+  }
 
-  const handleChange = event => {
-    setValues(oldValues => ({
-      ...oldValues,
-      [event.target.name]: event.target.value,
-    }));
-  };
+  useEffect(() => {    
+    getComicsList()
+  }, [])
+
+  function _onComicClick(id) {
+    console.log('Click on', id)
+  }
+
+  // const handleChange = event => {
+  //   setValues(oldValues => ({
+  //     ...oldValues,
+  //     [event.target.name]: event.target.value,
+  //   }));
+  // };
   
   return (
     <Container className={classes.cardGrid} maxWidth="md">
@@ -128,7 +164,7 @@ export default function Comics() {
           <SearchIcon />
         </IconButton>
       </Paper>
-      <div style={{ float: 'left', marginTop: '5px'}}>
+      {/*<div style={{ float: 'left', marginTop: '5px'}}>
         <Box> 
           {total.total} results
         </Box>  
@@ -146,12 +182,18 @@ export default function Comics() {
         
           </Select>
         </Box>
-      </div>
+      </div>*/}
+      {(isLoading) ? <Loading /> :
+        <InfiniteScroll style={{ overflow: 'hidden' }}
+          dataLength={comics.length}
+          next={() => { getComicsList(comics.length) }}
+          hasMore={hasMore}
+        >
       <Grid container spacing={4}>
         {comics && comics.length > 0 && comics.map(comic => (
           <Grid item key={comic.id} xs={12} sm={6} md={4}>
             <Card className={classes.card}>
-              <CardActionArea>
+           
                 <CardMedia   
                   className={classes.cardMedia}
                   image={`${comic.thumbnail.path}.${comic.thumbnail.extension}`}
@@ -162,11 +204,18 @@ export default function Comics() {
                     {comic.title}
                   </Typography>
                 </CardContent>
-              </CardActionArea>
+                <CardActions className={classes.cardActions}>
+                  <Button size="small" color="primary" onClick={(event) => _onComicClick(comic.id, event)}>
+                      Learn More
+                  </Button>
+                </CardActions>
+              
             </Card>
           </Grid>
         ))}
       </Grid>
+      </InfiniteScroll>
+      }
     </Container>   
   );
 }
